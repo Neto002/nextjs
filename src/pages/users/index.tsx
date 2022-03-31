@@ -1,15 +1,18 @@
 import axios from "axios";
+import { GetServerSideProps, NextPage } from "next";
 import { useEffect, useState } from "react";
 
-const UsersPage = () => {
+type User = {
+    name: string
+}
 
-    const [users, setUsers] = useState([]);
+type UserPageProps = {
+    users: User[]
+}
 
-    useEffect(() => {
-        axios
-            .get("http://localhost:3001/db.json")
-            .then((response) => setUsers(response.data.users));
-    }, []);
+const UsersPage: NextPage<UserPageProps> = (props) => {
+
+    const {users} = props;
 
     return (
         <div>
@@ -18,7 +21,19 @@ const UsersPage = () => {
                 {users.map((user: any, key) => <li key={key}>{user.name}</li>)}
             </ul>
         </div>
-    );
+    )
 }
 
 export default UsersPage
+
+export const getServerSideProps: GetServerSideProps = async () => {
+    
+    const {data} = await axios.get("http://localhost:3001/db.json")
+    const users = data.users
+
+    return {
+        props: {
+            users,
+        },
+    }
+}
